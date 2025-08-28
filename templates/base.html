@@ -1,4 +1,3 @@
-<!-- File: templates/base.html -->
 {% load static %}
 <!doctype html>
 <html lang="en">
@@ -12,7 +11,10 @@
   <body class="min-h-screen bg-page text-body">
     <header class="site-header">
       <div class="container header-inner">
-        <a href="/dashboard/" class="brand">Squire Enterprises Job Tracker</a>
+        <a href="/dashboard/" class="brand">
+          <img src="{% static 'img/squire-logo.png' %}" alt="Squire Enterprises" style="height:1.75rem;width:auto;margin-right:.5rem;vertical-align:middle;"/>
+          Squire Enterprises Job Tracker
+        </a>
         <nav class="nav">
           {% if user.is_authenticated %}
             <a href="/dashboard/">Dashboard</a>
