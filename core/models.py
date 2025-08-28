@@ -1,55 +1,95 @@
 from __future__ import annotations
-m = self._effective_markup() or Decimal("0.00")
-self.sell_price = (self.cost * (Decimal("1.0") + (m / Decimal("100")))).quantize(Decimal("0.01"))
-super().save(*args, **kwargs)
+from decimal import Decimal
+from django.db import models
+from django.utils import timezone
 
 
-def __str__(self) -> str: # pragma: no cover
-return f"{self.date} {self.description}: {self.sell_price}"
+DECIMAL_OPTS = {"max_digits": 12, "decimal_places": 2}
 
 
-class Payment(models.Model):
-project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="payments")
-date = models.DateField(default=timezone.now)
-amount = models.DecimalField(**DECIMAL_OPTS)
-reference = models.CharField(max_length=200, blank=True)
+
+
+class Customer(models.Model):
+name = models.CharField(max_length=200, unique=True)
+is_active = models.BooleanField(default=True)
 
 
 class Meta:
-verbose_name = "Payment Received"
-verbose_name_plural = "Payments Received"
+verbose_name = "Contractor"
+verbose_name_plural = "Contractors"
 
 
 def __str__(self) -> str: # pragma: no cover
-return f"{self.date} ${self.amount} {self.reference}"
+return self.name
 
 
-# Aggregation helpers for reporting
-class ProjectTotals:
-def __init__(self, project: Project):
-self.project = project
 
 
-@property
-def work_total(self) -> Decimal:
-return sum((w.line_total for w in self.project.work_entries.all()), Decimal("0.00"))
+class Client(models.Model):
+customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="clients")
+name = models.CharField(max_length=200)
+is_active = models.BooleanField(default=True)
 
 
-@property
-def materials_total(self) -> Decimal:
-return sum((m.sell_price for m in self.project.material_entries.all()), Decimal("0.00"))
+class Meta:
+unique_together = ("customer", "name")
+verbose_name = "Client"
+verbose_name_plural = "Clients"
 
 
-@property
-def payments_total(self) -> Decimal:
-return sum((p.amount for p in self.project.payments.all()), Decimal("0.00"))
+def __str__(self) -> str: # pragma: no cover
+return f"{self.name} ({self.customer.name})"
 
 
-@property
-def grand_total(self) -> Decimal:
-return self.work_total + self.materials_total
 
 
-@property
-def balance_due(self) -> Decimal:
+class Project(models.Model):
+customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name="projects")
+client = models.ForeignKey(Client, on_delete=models.PROTECT, related_name="projects")
+name = models.CharField(max_length=200)
+material_markup_percent = models.DecimalField(**DECIMAL_OPTS, default=Decimal("10.00"))
+start_date = models.DateField(default=timezone.now)
+end_date = models.DateField(null=True, blank=True)
+is_active = models.BooleanField(default=True)
+
+
+class Meta:
+unique_together = ("customer", "client", "name")
+verbose_name = "Job"
+verbose_name_plural = "Jobs"
+
+
+def __str__(self) -> str: # pragma: no cover
+return f"{self.name} — {self.client.name} / {self.customer.name}"
+
+
+
+
+class Asset(models.Model):
+UNIT_HOUR = "hour"
+UNIT_DAY = "day"
+UNIT_EACH = "each"
+UNIT_CHOICES = [
+(UNIT_HOUR, "Hour"),
+(UNIT_DAY, "Day"),
+(UNIT_EACH, "Each"),
+]
+
+
+name = models.CharField(max_length=200, unique=True)
+is_labor = models.BooleanField(default=False)
+unit = models.CharField(max_length=16, choices=UNIT_CHOICES, default=UNIT_HOUR)
+default_rate = models.DecimalField(**DECIMAL_OPTS, default=Decimal("0.00"))
+is_active = models.BooleanField(default=True)
+
+
+class Meta:
+verbose_name = "Resource"
+verbose_name_plural = "Resources"
+
+
+def __str__(self) -> str: # pragma: no cover
+return self.name
+
+
 return self.grand_total - self.payments_total
