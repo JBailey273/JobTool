@@ -18,9 +18,9 @@
         <nav class="nav">
           {% if user.is_authenticated %}
             <a href="/dashboard/">Dashboard</a>
-            <a href="/work/new">Add Labor &amp; Equipment</a>
-            <a href="/materials/new">Add Materials</a>
-            <a href="/payments/new">Record Payment</a>
+            <a href="/work/new/">Add Labor &amp; Equipment</a>
+            <a href="/materials/new/">Add Materials</a>
+            <a href="/payments/new/">Record Payment</a>
             {% if user.is_staff %}
               <a href="/admin/">Admin</a>
             {% endif %}
