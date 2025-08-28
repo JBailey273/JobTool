@@ -1,9 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Pick a Project</h2>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Open Report</button>
+<section class="card">
+<h2 class="h2">Pick a Job</h2>
+<p class="muted">Choose a job to open its live summary report.</p>
+<form class="form" method="post">{% csrf_token %}
+{{ form.as_p }}
+<div class="row">
+<button class="btn" type="submit">Open Report</button>
+</div>
 </form>
-<p>Use Admin to set up Customers, Clients, Projects, Assets, and per-project Rate Overrides.</p>
+</section>
+
+
+<section class="grid two mt">
+<div class="card">
+<h3 class="h3">Quick Actions</h3>
+<div class="actions">
+<a class="btn" href="/work/new/">Add Labor/Equipment</a>
+<a class="btn" href="/materials/new/">Add Materials</a>
+<a class="btn" href="/payments/new/">Record Payment</a>
+</div>
+</div>
+<div class="card">
+<h3 class="h3">Setup</h3>
+<p class="muted">Use <a href="/admin/">Admin</a> to add Contractors, Clients, Jobs, Resources, and optional per‑job Rate Overrides.</p>
+</div>
+</section>
 {% endblock %}
