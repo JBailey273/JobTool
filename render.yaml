@@ -35,7 +35,7 @@ services:
       -k uvicorn.workers.UvicornWorker
       --log-level info
 
-    autoDeploy: true
+    autoDeploy: false
 
     # Optional: custom domain (keep only if you've set DNS CNAME to Render hostname)
     domains:
@@ -53,3 +53,4 @@ services:
         value: jobs.squire.enterprises,${RENDER_EXTERNAL_HOSTNAME}
       - key: CSRF_TRUSTED_ORIGINS
         value: https://jobs.squire.enterprises,https://${RENDER_EXTERNAL_HOSTNAME}
+
