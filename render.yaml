@@ -29,6 +29,17 @@ services:
       python -m pip install --no-cache-dir -r requirements.txt
       python manage.py migrate --noinput --fake-initial
       python manage.py collectstatic --noinput
+      python - <<'PY'
+import pathlib, py_compile, sys
+bad = []
+for p in pathlib.Path('.').rglob('*.py'):
+    try: py_compile.compile(str(p), doraise=True)
+    except Exception as e:
+        bad.append(f"{p}: {e}")
+if bad:
+    print("\n".join(bad)); sys.exit(1)
+PY
+
 
     startCommand: >
       python -m gunicorn config.asgi:application
@@ -53,4 +64,5 @@ services:
         value: jobs.squire.enterprises,${RENDER_EXTERNAL_HOSTNAME}
       - key: CSRF_TRUSTED_ORIGINS
         value: https://jobs.squire.enterprises,https://${RENDER_EXTERNAL_HOSTNAME}
+
 
