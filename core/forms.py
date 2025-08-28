@@ -36,27 +36,3 @@ class Meta:
 model = Payment
 fields = ["project", "date", "amount", "reference"]
 labels = {"project": "Job"}
-```
-
-
----
-
-
-# core/apps.py (admin branding)
-```python
-from __future__ import annotations
-from django.apps import AppConfig
-
-
-class CoreConfig(AppConfig):
-default_auto_field = "django.db.models.BigAutoField"
-name = "core"
-verbose_name = "Job Tracker"
-
-
-def ready(self) -> None:
-# Brand the Django admin as Squire Enterprises Job Tracker
-from django.contrib import admin
-admin.site.site_header = "Squire Enterprises Job Tracker — Admin"
-admin.site.site_title = "Squire Enterprises Job Tracker"
-admin.site.index_title = "Administration"
