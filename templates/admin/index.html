@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_urls %}
+
+{% block content %}
+  <div class="se-admin-hero">
+    <img src="{% static 'img/squire-logo.png' %}" alt="Squire Enterprises" class="se-admin-logo"/>
+    <div class="se-hero-text">
+      <h2>Welcome to Squire Enterprises Admin</h2>
+      <p>Manage clients, jobs, logs, and payments. Quick actions:</p>
+      <div class="se-quick-actions">
+        <a class="se-qa" href="{% url 'admin:core_client_add' %}">New Client</a>
+        <a class="se-qa" href="{% url 'admin:core_project_add' %}">New Job</a>
+        <a class="se-qa" href="{% url 'admin:core_workentry_add' %}">Log Labor &amp; Equipment</a>
+        <a class="se-qa" href="{% url 'admin:core_materialentry_add' %}">Log Materials</a>
+        <a class="se-qa" href="{% url 'admin:core_payment_add' %}">Record Payment</a>
+        <a class="se-qa" href="/dashboard/">Open App Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  {% if app_list %}
+    <div class="se-admin-apps">
+      {% for app in app_list %}
+        <section class="app-group">
+          <h3>{{ app.name }}</h3>
+          <ul class="model-links">
+            {% for model in app.models %}
+              <li>
+                <span>
+                  {% if model.admin_url %}
+                    <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                  {% else %}
+                    {{ model.name }}
+                  {% endif %}
+                </span>
+                <span>
+                  {% if model.add_url %}<a class="addlink" href="{{ model.add_url }}">Add</a>{% endif %}
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>{% trans "You don't have permission to view or edit anything." %}</p>
+  {% endif %}
+{% endblock %}
