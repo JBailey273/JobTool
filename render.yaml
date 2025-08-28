@@ -1,4 +1,4 @@
-Databases:
+databases:
   - name: jobtool-db
     plan: free
     databaseName: jobtool
@@ -36,3 +36,4 @@ envVarGroups:
         generateValue: true
       - key: WEB_CONCURRENCY
         value: 4
+
