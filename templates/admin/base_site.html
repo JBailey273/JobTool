@@ -1,3 +1,22 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}Squire Enterprises Admin{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_brand.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name" class="se-brand">
+    <a href="{% url 'admin:index' %}">Squire Enterprises Admin</a>
+  </h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+html
 {% load i18n static %}
 {% extends "admin/base.html" %}
 
