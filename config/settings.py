@@ -1,3 +1,6 @@
+# Fix DisallowedHost by auto-including Render's hostname and building CSRF origins.
+# Overwrite config/settings.py with this complete file.
+
 from pathlib import Path
 import os
 import dj_database_url
@@ -10,8 +13,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'dev-insecure-change-me')
 DEBUG = os.getenv('DEBUG', '0') in {'1', 'true', 'True'}
 
-ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '*').split(',') if h.strip()]
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
+
+def _env_list(key: str) -> list[str]:
+    return [s.strip() for s in os.getenv(key, '').split(',') if s.strip()]
+
+# Start with any explicit env values
+ALLOWED_HOSTS = _env_list('ALLOWED_HOSTS')
+CSRF_TRUSTED_ORIGINS = _env_list('CSRF_TRUSTED_ORIGINS')
+
+# Always allow local dev
+ALLOWED_HOSTS += ['localhost', '127.0.0.1']
+
+# Include Render-provided external hostname automatically
+_render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')  # e.g. jobtool-web.onrender.com
+if _render_host:
+    ALLOWED_HOSTS.append(_render_host)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{_render_host}')
+
+# De-duplicate while preserving order
+_seen = set()
+ALLOWED_HOSTS = [h for h in ALLOWED_HOSTS if not (h in _seen or _seen.add(h))]
+_seen.clear()
+CSRF_TRUSTED_ORIGINS = [u for u in CSRF_TRUSTED_ORIGINS if not (u in _seen or _seen.add(u))]
 
 # --------------------------------------------------------------------------------------
 # Applications
