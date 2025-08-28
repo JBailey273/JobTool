@@ -1,218 +1,150 @@
 from __future__ import annotations
+
+from dataclasses import dataclass
 from decimal import Decimal
+from typing import Optional
+
 from django.db import models
 from django.utils import timezone
 
-# Decimal field options reused across money/qty fields
-DECIMAL_OPTS = {"max_digits": 12, "decimal_places": 2}
-
 
 class Client(models.Model):
-    """Your client. (Former Customer removed)"""
-
     name = models.CharField(max_length=200, unique=True)
-    is_active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "Client"
-        verbose_name_plural = "Clients"
+        ordering = ["name"]
 
     def __str__(self) -> str:  # pragma: no cover
         return self.name
 
 
-class Project(models.Model):
-    """A Job for a Client."""
+class Asset(models.Model):
+    """Physical asset/equipment tracked by a client.
+
+    NOTE: This model used to be referred to as "Resource" in UI copy. The
+    canonical name is now Asset. Verbose names update the Admin language.
+    """
 
     client = models.ForeignKey(
-        Client, on_delete=models.PROTECT, related_name="projects"
-    )
+        Client, on_delete=models.CASCADE, related_name="assets", null=True, blank=True
+    )  # why: allow null temporarily to avoid backfill breakage
     name = models.CharField(max_length=200)
-    material_markup_percent = models.DecimalField(
-        **DECIMAL_OPTS, default=Decimal("10.00")
-    )
-    start_date = models.DateField(default=timezone.now)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Asset"
+        verbose_name_plural = "Assets"
+        unique_together = ("client", "name")
+        ordering = ["name"]
+
+    def __str__(self) -> str:  # pragma: no cover
+        owner = self.client.name if self.client_id else "(no client)"
+        return f"{self.name} — {owner}"
+
+
+class Project(models.Model):  # UI name: Job
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="projects")
+    name = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, blank=True)
+    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Job"
-        verbose_name_plural = "Jobs"
-        unique_together = ("client", "name")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["client", "name"], name="uniq_project_per_client"
+            )
+        ]
+        ordering = ["client__name", "name"]
 
     def __str__(self) -> str:  # pragma: no cover
         return f"{self.name} — {self.client.name}"
 
 
-class Asset(models.Model):
-    """Equipment or Labor resource."""
-
-    UNIT_HOUR = "hour"
-    UNIT_DAY = "day"
-    UNIT_EACH = "each"
-    UNIT_CHOICES = [
-        (UNIT_HOUR, "Hour"),
-        (UNIT_DAY, "Day"),
-        (UNIT_EACH, "Each"),
-    ]
-
-    name = models.CharField(max_length=200, unique=True)
-    is_labor = models.BooleanField(default=False)
-    unit = models.CharField(max_length=16, choices=UNIT_CHOICES, default=UNIT_HOUR)
-    default_rate = models.DecimalField(**DECIMAL_OPTS, default=Decimal("0.00"))
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        verbose_name = "Resource"
-        verbose_name_plural = "Resources"
-
-    def __str__(self) -> str:  # pragma: no cover
-        return self.name
-
-
 class RateOverride(models.Model):
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="rate_overrides"
-    )
-    asset = models.ForeignKey(
-        Asset, on_delete=models.CASCADE, related_name="rate_overrides"
-    )
-    rate = models.DecimalField(**DECIMAL_OPTS)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         unique_together = ("project", "asset")
-        verbose_name = "Rate Override"
-        verbose_name_plural = "Rate Overrides"
 
     def __str__(self) -> str:  # pragma: no cover
-        return f"{self.project} / {self.asset}: {self.rate}"
+        return f"{self.project} / {self.asset}: {self.hourly_rate}"
 
 
-class WorkEntry(models.Model):
-    """Labor & Equipment log for a job."""
-
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="work_entries"
-    )
-    asset = models.ForeignKey(Asset, on_delete=models.PROTECT)
+class WorkEntry(models.Model):  # UI name: Labor & Equipment Log
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="work")
     date = models.DateField(default=timezone.now)
-    quantity = models.DecimalField(**DECIMAL_OPTS, default=Decimal("0.00"))
+    hours = models.DecimalField(max_digits=7, decimal_places=2)
+    asset = models.ForeignKey(Asset, on_delete=models.SET_NULL, null=True, blank=True)
     notes = models.TextField(blank=True)
 
-    # Snapshotted pricing at save-time
-    rate_used = models.DecimalField(
-        **DECIMAL_OPTS, editable=False, default=Decimal("0.00")
-    )
-    line_total = models.DecimalField(
-        **DECIMAL_OPTS, editable=False, default=Decimal("0.00")
-    )
-
     class Meta:
-        verbose_name = "Labor & Equipment Log"
-        verbose_name_plural = "Labor & Equipment Logs"
-
-    def _resolve_rate(self) -> Decimal:
-        o = RateOverride.objects.filter(project=self.project, asset=self.asset).first()
-        return o.rate if o else self.asset.default_rate
-
-    def save(self, *args, **kwargs):  # compute snapshot values
-        rate = self._resolve_rate()
-        self.rate_used = rate
-        qty = self.quantity or Decimal("0")
-        self.line_total = (rate * qty).quantize(Decimal("0.01"))
-        super().save(*args, **kwargs)
-
-    def __str__(self) -> str:  # pragma: no cover
-        return f"{self.date} {self.asset} x {self.quantity} = {self.line_total}"
+        ordering = ["-date", "id"]
 
 
-class MaterialEntry(models.Model):
-    """Materials used on a job (with markup)."""
-
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="material_entries"
-    )
+class MaterialEntry(models.Model):  # UI name: Material Log
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="materials")
     date = models.DateField(default=timezone.now)
-    description = models.CharField(max_length=255)
-    cost = models.DecimalField(**DECIMAL_OPTS, default=Decimal("0.00"))
-    markup_percent = models.DecimalField(
-        **DECIMAL_OPTS, null=True, blank=True, help_text="Override job markup %"
-    )
-
-    # Snapshotted sell price at save-time
-    sell_price = models.DecimalField(
-        **DECIMAL_OPTS, editable=False, default=Decimal("0.00")
-    )
+    description = models.CharField(max_length=200)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("1"))
+    unit_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
 
     class Meta:
-        verbose_name = "Material Log"
-        verbose_name_plural = "Material Logs"
+        ordering = ["-date", "id"]
 
-    def _effective_markup(self) -> Decimal:
-        return (
-            self.markup_percent
-            if self.markup_percent is not None
-            else self.project.material_markup_percent
-        )
-
-    def save(self, *args, **kwargs):
-        m = self._effective_markup() or Decimal("0.00")
-        self.sell_price = (
-            self.cost * (Decimal("1.0") + (m / Decimal("100")))
-        ).quantize(Decimal("0.01"))
-        super().save(*args, **kwargs)
-
-    def __str__(self) -> str:  # pragma: no cover
-        return f"{self.date} {self.description}: {self.sell_price}"
+    @property
+    def total(self) -> Decimal:
+        return (self.quantity or Decimal("0")) * (self.unit_cost or Decimal("0"))
 
 
-class Payment(models.Model):
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="payments"
-    )
+class Payment(models.Model):  # UI name: Payment Received
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="payments")
     date = models.DateField(default=timezone.now)
-    amount = models.DecimalField(**DECIMAL_OPTS)
-    reference = models.CharField(max_length=200, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    notes = models.TextField(blank=True)
 
     class Meta:
-        verbose_name = "Payment Received"
-        verbose_name_plural = "Payments Received"
-
-    def __str__(self) -> str:  # pragma: no cover
-        return f"{self.date} ${self.amount} {self.reference}"
+        ordering = ["-date", "id"]
 
 
+@dataclass
 class ProjectTotals:
-    """Convenience aggregator for reports."""
+    labor: Decimal
+    materials: Decimal
+    payments: Decimal
+    balance: Decimal
 
-    def __init__(self, project: Project):
-        self.project = project
+    @classmethod
+    def for_project(cls, project: Project) -> "ProjectTotals":
+        # Labor: hours * rate (override per-asset if exists)
+        labor_total = Decimal("0.00")
+        q = WorkEntry.objects.filter(project=project).select_related("asset")
+        for w in q:
+            rate = project.hourly_rate
+            if w.asset_id:
+                ro = RateOverride.objects.filter(project=project, asset=w.asset).first()
+                if ro:
+                    rate = ro.hourly_rate
+            labor_total += (w.hours or Decimal("0")) * (rate or Decimal("0"))
 
-    @property
-    def work_total(self) -> Decimal:
-        return sum(
-            (w.line_total for w in self.project.work_entries.all()),
-            Decimal("0.00"),
+        # Materials
+        materials_total = Decimal("0.00")
+        for m in MaterialEntry.objects.filter(project=project):
+            materials_total += m.total
+
+        # Payments
+        payments_total = (
+            Payment.objects.filter(project=project)
+            .aggregate(s=models.Sum("amount"))
+            .get("s")
+            or Decimal("0.00")
         )
 
-    @property
-    def materials_total(self) -> Decimal:
-        return sum(
-            (m.sell_price for m in self.project.material_entries.all()),
-            Decimal("0.00"),
-        )
-
-    @property
-    def payments_total(self) -> Decimal:
-        return sum(
-            (p.amount for p in self.project.payments.all()),
-            Decimal("0.00"),
-        )
-
-    @property
-    def grand_total(self) -> Decimal:
-        return self.work_total + self.materials_total
-
-    @property
-    def balance_due(self) -> Decimal:
-        return self.grand_total - self.payments_total
+        balance = labor_total + materials_total - payments_total
+        return cls(labor=labor_total, materials=materials_total, payments=payments_total, balance=balance)
