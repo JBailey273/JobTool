@@ -1,6 +1,3 @@
-# path: core/migrations/0003_remove_customer_column.py
-# why: Production DB still has a NOT NULL core_client.customer_id from the old schema.
-#      This drops the legacy column safely so adding Clients works again.
 from django.db import migrations
 
 
@@ -12,9 +9,44 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql=(
-                "ALTER TABLE IF EXISTS core_client "
+                "ALTER TABLE IF EXISTS core_project "
                 "DROP COLUMN IF EXISTS customer_id CASCADE;"
             ),
-            reverse_sql=migrations.RunSQL.noop,  # why: we intentionally keep the column removed
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql=(
+                "ALTER TABLE IF EXISTS core_asset "
+                "DROP COLUMN IF EXISTS customer_id CASCADE;"
+            ),
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql=(
+                "ALTER TABLE IF EXISTS core_workentry "
+                "DROP COLUMN IF EXISTS customer_id CASCADE;"
+            ),
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql=(
+                "ALTER TABLE IF EXISTS core_materialentry "
+                "DROP COLUMN IF EXISTS customer_id CASCADE;"
+            ),
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql=(
+                "ALTER TABLE IF EXISTS core_payment "
+                "DROP COLUMN IF EXISTS customer_id CASCADE;"
+            ),
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql=(
+                "ALTER TABLE IF EXISTS core_rateoverride "
+                "DROP COLUMN IF EXISTS customer_id CASCADE;"
+            ),
+            reverse_sql=migrations.RunSQL.noop,
         ),
     ]
