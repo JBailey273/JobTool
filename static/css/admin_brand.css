@@ -1,28 +1,49 @@
 /* path: static/css/admin_brand.css */
-/* why: small tweaks so the admin visually matches app branding */
+/* why: admin should match Squire branding and scale nicely on mobile */
 :root {
   --se-brand-fg: #0f172a; /* slate-900 */
-  --se-brand-accent: #2563eb; /* blue-600 */
+  --se-brand-accent: #1c6340; /* Squire green */
+  --se-brand-accent-contrast: #ffffff;
+  --se-brand-accent-hover: #155638; /* darker hover */
+  --se-card-bg: #ffffff;
+  --se-card-border: #e5e7eb; /* gray-200 */
 }
 
-#header { /* top admin bar */
-  background: var(--se-brand-accent);
-}
+/* Top admin bar */
+#header { background: var(--se-brand-accent); }
+#header a:link, #header a:visited, #user-tools { color: var(--se-brand-accent-contrast); }
 
-#header a:link, #header a:visited, #user-tools { /* header text */
-  color: #fff;
-}
+/* Header brand w/ logo */
+#site-name.se-brand a { color: var(--se-brand-accent-contrast); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; }
+.se-header-logo { max-height: 30px; width: auto; display: inline-block; }
+@media (max-width: 480px) { .se-header-logo { max-height: 24px; } }
 
-#site-name.se-brand a {
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-#branding h1, #branding h1 a:hover { color: #fff; }
-
-/***** optional: unify fonts with the app *****/
-html, body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
-
-/***** optional: lighter login box *****/
+/* Admin login polish */
 .login #container { box-shadow: 0 10px 24px rgba(2, 6, 23, 0.12); border-radius: 12px; }
+
+/* Dashboard hero */
+.se-admin-hero { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: center; background: var(--se-card-bg); border: 1px solid var(--se-card-border); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; }
+.se-admin-hero .se-admin-logo { width: clamp(140px, 28vw, 280px); height: auto; }
+.se-admin-hero .se-hero-text h2 { margin: 0 0 .25rem; font-size: 1.25rem; color: var(--se-brand-fg); }
+.se-admin-hero .se-hero-text p { margin: 0 0 .5rem; color: #334155; }
+
+/* Quick actions */
+.se-quick-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.se-quick-actions .se-qa { display: inline-block; background: var(--se-brand-accent); color: var(--se-brand-accent-contrast); padding: .5rem .75rem; border-radius: .5rem; border: 1px solid transparent; font-weight: 600; text-decoration: none; }
+.se-quick-actions .se-qa:hover { background: var(--se-brand-accent-hover); }
+
+/* App list cards */
+.se-admin-apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.se-admin-apps .app-group { background: var(--se-card-bg); border: 1px solid var(--se-card-border); border-radius: 12px; padding: .75rem .9rem; }
+.se-admin-apps .app-group h3 { margin-top: 0; font-size: 1rem; color: var(--se-brand-fg); }
+.se-admin-apps .model-links { list-style: none; padding-left: 0; margin: .25rem 0 0; }
+.se-admin-apps .model-links li { display: flex; align-items: center; justify-content: space-between; padding: .25rem 0; }
+.se-admin-apps .model-links a { text-decoration: none; }
+.se-admin-apps .model-links .addlink { font-size: .85em; background: #f3f4f6; padding: .15rem .4rem; border-radius: .375rem; margin-left: .5rem; }
+
+/* Dark-mode friendliness (if your global theme toggles) */
+:root[data-theme='dark'] #header { background: var(--se-brand-accent); }
+:root[data-theme='dark'] .se-admin-hero { background: #0b1220; border-color: #1f2937; }
+:root[data-theme='dark'] .se-admin-hero .se-hero-text h2 { color: #e5e7eb; }
+:root[data-theme='dark'] .se-admin-hero .se-hero-text p { color: #94a3b8; }
+:root[data-theme='dark'] .se-admin-apps .app-group { background: #0b1220; border-color: #1f2937; }
