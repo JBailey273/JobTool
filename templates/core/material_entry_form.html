@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>New Material Entry</h2>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Save</button>
+<section class="card">
+<h2 class="h2">New Material Log</h2>
+<p class="muted">Markup defaults to the job’s setting but can be overridden.</p>
+<form class="form" method="post">{% csrf_token %}
+{{ form.as_p }}
+<div class="row">
+<button class="btn" type="submit">Save</button>
+<a class="btn btn-ghost" href="/">Cancel</a>
+</div>
 </form>
+</section>
 {% endblock %}
