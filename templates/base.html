@@ -1,28 +1,52 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Job Tool</title>
-  <link rel="stylesheet" href="/static/css/app.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Squire Enterprises Job Tracker</title>
+<link rel="stylesheet" href="/static/css/app.css">
+<script>
+(function(){
+const saved = localStorage.getItem('jt-theme');
+if (saved) document.documentElement.setAttribute('data-theme', saved);
+})();
+</script>
 </head>
 <body>
-<header class="container">
-  <h1>Job Tool</h1>
-  <nav>
-    <a href="/">Dashboard</a>
-    <a href="/admin/">Admin</a>
-    <a href="/work/new/">Add Work</a>
-    <a href="/materials/new/">Add Materials</a>
-    <a href="/payments/new/">Add Payment</a>
-  </nav>
-  <hr>
+<header class="topbar">
+<div class="container row between center">
+<a class="brand" href="/">Squire Enterprises Job Tracker</a>
+<nav class="nav">
+<a href="/">Dashboard</a>
+<a href="/work/new/">Add Labor/Equipment</a>
+<a href="/materials/new/">Add Materials</a>
+<a href="/payments/new/">Record Payment</a>
+<a href="/admin/">Admin</a>
+<button class="btn btn-ghost" id="themeToggle" type="button" title="Toggle theme">🌗</button>
+</nav>
+</div>
 </header>
-<main class="container">
-  {% if messages %}
-    <ul class="messages">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>
-  {% endif %}
-  {% block content %}{% endblock %}
+<main class="container main">
+{% if messages %}
+<ul class="messages">
+{% for m in messages %}
+<li class="msg msg-{{ m.tags }}">{{ m }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% block content %}{% endblock %}
 </main>
+<footer class="container footer">
+<small>© {{ now|default:"" }} Squire Enterprises</small>
+</footer>
+<script>
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+const d = document.documentElement;
+const next = d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+d.setAttribute('data-theme', next);
+localStorage.setItem('jt-theme', next);
+});
+</script>
 </body>
 </html>
