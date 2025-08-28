@@ -14,9 +14,4 @@ class Migration(migrations.Migration):
             ),
             reverse_sql=migrations.RunSQL.noop,
         ),
-        # If you still have a core_customer table and want it gone, uncomment below.
-        # migrations.RunSQL(
-        #     sql=("DROP TABLE IF EXISTS core_customer CASCADE;"),
-        #     reverse_sql=migrations.RunSQL.noop,
-        # ),
     ]
