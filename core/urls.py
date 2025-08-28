@@ -1,19 +1,21 @@
-from django.urls import path
-from django.http import HttpResponse
-from django.contrib.auth.views import LoginView, LogoutView
+"""URL patterns for core views."""
 
-def healthz(_request):
-    return HttpResponse("ok", content_type="text/plain")
+from django.contrib.auth.views import LogoutView
+from django.urls import path
+
+from . import views
+
+app_name = "core"
 
 urlpatterns = [
-    path("healthz/", healthz, name="healthz"),
-    path(
-        "login/",
-        LoginView.as_view(
-            template_name="account/login.html",
-            redirect_authenticated_user=True,
-        ),
-        name="login",
-    ),
+    path("healthz/", views.healthz, name="healthz"),
+    path("", views.root, name="root"),
+    path("login/", views.BrandedLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("dashboard/", views.dashboard, name="dashboard"),
+    path("work/new/", views.add_work_entry, name="work_new"),
+    path("materials/new/", views.add_material_entry, name="material_new"),
+    path("payments/new/", views.add_payment, name="payment_new"),
+    path("report/<int:project_id>/", views.report, name="report"),
 ]
+
