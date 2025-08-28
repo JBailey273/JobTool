@@ -1,6 +1,3 @@
-# Replace your repo-root render.yaml with this (Starter plan + custom domain)
-
-```yaml
 databases:
   - name: jobtool-db
     plan: free               # DB can stay on free for now
@@ -52,3 +49,4 @@ envVarGroups:
       - key: WEB_CONCURRENCY
         value: 4
 ```
+
