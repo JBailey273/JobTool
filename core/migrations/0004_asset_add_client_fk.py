@@ -2,9 +2,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-    # Fix: depend on the last migration you actually have (0002_drop_customer_and_adjust)
+    # Fix: depend on your existing 0003 so the graph is linear
     dependencies = [
-        ("core", "0002_drop_customer_and_adjust"),
+        ("core", "0003_remove_customer_column"),
     ]
 
     operations = [
