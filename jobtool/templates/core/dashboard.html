@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Pick a Project</h2>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Open Report</button>
-</form>
-<p>Use Admin to set up Customers, Clients, Projects, Assets, and per-project Rate Overrides.</p>
-{% endblock %}
