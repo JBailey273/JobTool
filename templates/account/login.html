@@ -1,11 +1,4 @@
 {% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>Sign in — Squire Enterprises Job Tracker</title>
 <link rel="stylesheet" href="/static/css/app.css">
 <style>
 .login-wrap{ min-height:100dvh; display:grid; place-items:center; padding:1rem; }
@@ -13,7 +6,9 @@
 .brand-center{ text-align:center; margin-bottom:.75rem; font-weight:800; }
 .errorlist{ list-style:none; margin:.25rem 0; padding:0; color:var(--danger); }
 </style>
-<script> (function(){ const s=localStorage.getItem('jt-theme'); if(s) document.documentElement.setAttribute('data-theme', s); })(); </script>
+<script>
+(function(){ const s=localStorage.getItem('jt-theme'); if(s) document.documentElement.setAttribute('data-theme', s); })();
+</script>
 </head>
 <body>
 <div class="login-wrap">
