@@ -1,28 +1,43 @@
-databases:
+# Render Blueprint — Starter plan (Python/Django ASGI)
+# Replace your repo-root render.yaml with this file.
+
+Databases:
   - name: jobtool-db
-    plan: free               # DB can stay on free for now
+    plan: free
     databaseName: jobtool
     user: jobtool
+
+envVarGroups:
+  - name: django-shared
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 2
 
 services:
   - type: web
     name: jobtool-web
     runtime: python
-    plan: starter            # upgraded from free
+    plan: starter
     region: oregon
 
     buildCommand: |
       python -m pip install --upgrade pip
       python -m pip install --no-cache-dir -r requirements.txt
-      python manage.py migrate --noinput --run-syncdb
+      python manage.py migrate --noinput --fake-initial
       python manage.py collectstatic --noinput
 
     startCommand: >
-      python -m gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker
+      python -m gunicorn config.asgi:application
+      -k uvicorn.workers.UvicornWorker
+      --log-level info
 
     autoDeploy: true
 
-    # Add your custom domain once DNS is pointed
+    # Optional: custom domain (keep only if you've set DNS CNAME to Render hostname)
     domains:
       - jobs.squire.enterprises
 
@@ -38,15 +53,4 @@ services:
         value: jobs.squire.enterprises,${RENDER_EXTERNAL_HOSTNAME}
       - key: CSRF_TRUSTED_ORIGINS
         value: https://jobs.squire.enterprises,https://${RENDER_EXTERNAL_HOSTNAME}
-
-envVarGroups:
-  - name: django-shared
-    envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: config.settings
-      - key: SECRET_KEY
-        generateValue: true
-      - key: WEB_CONCURRENCY
-        value: 4
-
 
