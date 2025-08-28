@@ -6,12 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <title>Squire Enterprises Job Tracker</title>
 <link rel="stylesheet" href="/static/css/app.css">
-<script>
-(function(){
-const saved = localStorage.getItem('jt-theme');
-if (saved) document.documentElement.setAttribute('data-theme', saved);
-})();
-</script>
+<script>(function(){const s=localStorage.getItem('jt-theme'); if(s) document.documentElement.setAttribute('data-theme', s);})();</script>
 </head>
 <body>
 <header class="topbar">
@@ -22,6 +17,11 @@ if (saved) document.documentElement.setAttribute('data-theme', saved);
 <a href="/work/new/">Add Labor/Equipment</a>
 <a href="/materials/new/">Add Materials</a>
 <a href="/payments/new/">Record Payment</a>
+{% if request.user.is_authenticated %}
+<a href="/logout/">Log out</a>
+{% else %}
+<a href="/login/">Login</a>
+{% endif %}
 <a href="/admin/">Admin</a>
 <button class="btn btn-ghost" id="themeToggle" type="button" title="Toggle theme">🌗</button>
 </nav>
@@ -29,24 +29,15 @@ if (saved) document.documentElement.setAttribute('data-theme', saved);
 </header>
 <main class="container main">
 {% if messages %}
-<ul class="messages">
-{% for m in messages %}
-<li class="msg msg-{{ m.tags }}">{{ m }}</li>
-{% endfor %}
-</ul>
+<ul class="messages">{% for m in messages %}<li class="msg msg-{{ m.tags }}">{{ m }}</li>{% endfor %}</ul>
 {% endif %}
 {% block content %}{% endblock %}
 </main>
 <footer class="container footer">
-<small>© {{ now|default:"" }} Squire Enterprises</small>
+<small>© {% now "Y" %} Squire Enterprises</small>
 </footer>
 <script>
-document.getElementById('themeToggle')?.addEventListener('click', () => {
-const d = document.documentElement;
-const next = d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-d.setAttribute('data-theme', next);
-localStorage.setItem('jt-theme', next);
-});
+document.getElementById('themeToggle')?.addEventListener('click',()=>{const d=document.documentElement;const n=d.getAttribute('data-theme')==='dark'?'light':'dark';d.setAttribute('data-theme',n);localStorage.setItem('jt-theme',n);});
 </script>
 </body>
 </html>
