@@ -1,4 +1,21 @@
+# core/admin.py
 from __future__ import annotations
+from django.contrib import admin
+from . import models
+
+
+@admin.register(models.Client)
+class ClientAdmin(admin.ModelAdmin):
+list_display = ("name", "is_active")
+list_filter = ("is_active",)
+search_fields = ("name",)
+
+
+@admin.register(models.Project)
+class ProjectAdmin(admin.ModelAdmin):
+list_display = ("name", "client", "material_markup_percent", "is_active")
+list_filter = ("client", "is_active")
+search_fields = ("name",)
 
 
 @admin.register(models.Asset)
