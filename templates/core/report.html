@@ -1,61 +1,54 @@
 {% extends "base.html" %}
-{% block content %}
-<h2>Project Report — {{ project.name }}</h2>
-<p><strong>Customer:</strong> {{ project.customer.name }} | <strong>Client:</strong> {{ project.client.name }}</p>
-
-<h3>Work</h3>
-<table>
-  <thead><tr><th>Date</th><th>Asset</th><th>Qty</th><th>Rate</th><th>Total</th><th>Notes</th></tr></thead>
-  <tbody>
-  {% for w in work_entries %}
-    <tr>
-      <td>{{ w.date }}</td>
-      <td>{{ w.asset.name }}</td>
-      <td style="text-align:right">{{ w.quantity }}</td>
-      <td style="text-align:right">${{ w.rate_used }}</td>
-      <td style="text-align:right">${{ w.line_total }}</td>
-      <td>{{ w.notes }}</td>
-    </tr>
-  {% empty %}<tr><td colspan="6">No work entries.</td></tr>{% endfor %}
-  </tbody>
 </table>
+</div>
+</section>
 
-<h3>Materials</h3>
-<table>
-  <thead><tr><th>Date</th><th>Description</th><th>Cost</th><th>Markup %</th><th>Sell Price</th></tr></thead>
-  <tbody>
-  {% for m in material_entries %}
-    <tr>
-      <td>{{ m.date }}</td>
-      <td>{{ m.description }}</td>
-      <td style="text-align:right">${{ m.cost }}</td>
-      <td style="text-align:right">{{ m.markup_percent|default:project.material_markup_percent }}%</td>
-      <td style="text-align:right">${{ m.sell_price }}</td>
-    </tr>
-  {% empty %}<tr><td colspan="5">No materials.</td></tr>{% endfor %}
-  </tbody>
+
+<section class="card">
+<h3 class="h3">Materials</h3>
+<div class="table-wrap">
+<table class="table">
+<thead><tr><th>Date</th><th>Description</th><th class="num">Cost</th><th class="num">Markup %</th><th class="num">Sell Price</th></tr></thead>
+<tbody>
+{% for m in material_entries %}
+<tr>
+<td>{{ m.date }}</td>
+<td>{{ m.description }}</td>
+<td class="num">${{ m.cost }}</td>
+<td class="num">{{ m.markup_percent|default:project.material_markup_percent }}%</td>
+<td class="num">${{ m.sell_price }}</td>
+</tr>
+{% empty %}<tr><td colspan="5" class="muted">No materials.</td></tr>{% endfor %}
+</tbody>
 </table>
+</div>
+</section>
 
-<h3>Payments</h3>
-<table>
-  <thead><tr><th>Date</th><th>Amount</th><th>Reference</th></tr></thead>
-  <tbody>
-  {% for p in payments %}
-    <tr>
-      <td>{{ p.date }}</td>
-      <td style="text-align:right">${{ p.amount }}</td>
-      <td>{{ p.reference }}</td>
-    </tr>
-  {% empty %}<tr><td colspan="3">No payments.</td></tr>{% endfor %}
-  </tbody>
+
+<section class="card">
+<h3 class="h3">Payments Received</h3>
+<div class="table-wrap">
+<table class="table">
+<thead><tr><th>Date</th><th class="num">Amount</th><th>Reference</th></tr></thead>
+<tbody>
+{% for p in payments %}
+<tr>
+<td>{{ p.date }}</td>
+<td class="num">${{ p.amount }}</td>
+<td>{{ p.reference }}</td>
+</tr>
+{% empty %}<tr><td colspan="3" class="muted">No payments.</td></tr>{% endfor %}
+</tbody>
 </table>
+</div>
+</section>
 
-<h3>Totals</h3>
-<ul>
-  <li>Work: ${{ totals.work_total }}</li>
-  <li>Materials: ${{ totals.materials_total }}</li>
-  <li><strong>Grand Total: ${{ totals.grand_total }}</strong></li>
-  <li>Payments: ${{ totals.payments_total }}</li>
-  <li><strong>Balance Due: ${{ totals.balance_due }}</strong></li>
-</ul>
+
+<section class="grid three mt">
+<div class="card stat"><span class="label">Labor & Equipment</span><span class="value">${{ totals.work_total }}</span></div>
+<div class="card stat"><span class="label">Materials</span><span class="value">${{ totals.materials_total }}</span></div>
+<div class="card stat accent"><span class="label">Grand Total</span><span class="value">${{ totals.grand_total }}</span></div>
+<div class="card stat"><span class="label">Payments</span><span class="value">${{ totals.payments_total }}</span></div>
+<div class="card stat danger"><span class="label">Balance Due</span><span class="value">${{ totals.balance_due }}</span></div>
+</section>
 {% endblock %}
