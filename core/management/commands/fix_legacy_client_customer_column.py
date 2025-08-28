@@ -2,32 +2,42 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 
+TABLES = [
+    "core_client",
+    "core_project",
+    "core_asset",
+    "core_workentry",
+    "core_materialentry",
+    "core_payment",
+    "core_rateoverride",
+]
+
+
 class Command(BaseCommand):
-    """Drop legacy customer_id column from core_client if it exists."""
+    """Drop legacy customer_id column from all known tables if present."""
 
     def handle(self, *args, **options):
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT 1
-                FROM information_schema.columns
-                WHERE table_schema = 'public'
-                  AND table_name = 'core_client'
-                  AND column_name = 'customer_id'
-                """
-            )
-            exists = cursor.fetchone() is not None
-            if not exists:
-                self.stdout.write(self.style.SUCCESS(
-                    "No legacy column found: core_client.customer_id"
-                ))
-                return
+            for table in TABLES:
+                cursor.execute(
+                    """
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                      AND table_name = %s
+                      AND column_name = 'customer_id'
+                    """,
+                    [table],
+                )
+                exists = cursor.fetchone() is not None
+                if not exists:
+                    self.stdout.write(self.style.NOTICE(f"{table}.customer_id: not found"))
+                    continue
 
-            self.stdout.write("Dropping legacy column core_client.customer_id …")
-            cursor.execute(
-                "ALTER TABLE core_client DROP COLUMN IF EXISTS customer_id CASCADE;"
-            )
+                self.stdout.write(f"Dropping {table}.customer_id …")
+                cursor.execute(
+                    f"ALTER TABLE {table} DROP COLUMN IF EXISTS customer_id CASCADE;"
+                )
+                self.stdout.write(self.style.SUCCESS(f"Dropped {table}.customer_id"))
 
-        self.stdout.write(self.style.SUCCESS(
-            "Dropped legacy column. You can now add Clients."
-        ))
+        self.stdout.write(self.style.SUCCESS("Legacy customer_id cleanup complete."))
