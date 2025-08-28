@@ -10,9 +10,14 @@ services:
     runtime: python
     plan: free
     region: oregon
+
+    # Run build commands inline (avoid missing build.sh issues)
     buildCommand: |
-      sed -i 's/\r$//' build.sh  # convert CRLF→LF
-      bash build.sh
+      python -m pip install --upgrade pip
+      python -m pip install --no-cache-dir -r requirements.txt
+      python manage.py migrate --noinput --run-syncdb
+      python manage.py collectstatic --noinput
+
     startCommand: >
       python -m gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker
     autoDeploy: true
