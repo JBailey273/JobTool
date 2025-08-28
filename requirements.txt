@@ -5,3 +5,4 @@ whitenoise[brotli]>=6.6
 gunicorn>=21.2
 uvicorn[standard]>=0.30
 python-dotenv>=1.0
+tzdata>=2024.1
