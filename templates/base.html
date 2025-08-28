@@ -1,3 +1,4 @@
+<!-- File: templates/base.html -->
 {% load static %}
 <!doctype html>
 <html lang="en">
@@ -13,16 +14,16 @@
       <div class="container header-inner">
         <a href="/dashboard/" class="brand">Squire Enterprises Job Tracker</a>
         <nav class="nav">
-          {% if request.user.is_authenticated %}
+          {% if user.is_authenticated %}
             <a href="/dashboard/">Dashboard</a>
             <a href="/work/new">Add Labor &amp; Equipment</a>
             <a href="/materials/new">Add Materials</a>
             <a href="/payments/new">Record Payment</a>
-            {% if request.user.is_staff %}
+            {% if user.is_staff %}
               <a href="/admin/">Admin</a>
             {% endif %}
             <span class="spacer"></span>
-            <span class="user">{{ request.user.username }}</span>
+            <span class="user">{{ user.username }}</span>
             <a href="/logout/" class="logout">Logout</a>
           {% else %}
             <a href="/login/">Login</a>
@@ -37,7 +38,7 @@
     </main>
 
     <footer class="site-footer">
-      <div class="container">&copy; {{ now|date:'Y' }} Squire Enterprises</div>
+      <div class="container">&copy; {% now "Y" %} Squire Enterprises</div>
     </footer>
 
     <script>
