@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local DB
+*.sqlite3
+
+# Env files (keep secrets out of git)
+.env
+.env.*
+
+# Django static/media (collected/generated)
+staticfiles/
+media/
+
+# Editors/OS
+.vscode/
+.DS_Store
