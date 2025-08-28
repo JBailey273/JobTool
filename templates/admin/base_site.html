@@ -1,5 +1,6 @@
+<!-- File: templates/admin/base_site.html -->
 {% extends "admin/base.html" %}
-{% load i18n static %}
+{% load static i18n %}
 
 {% block title %}Squire Enterprises Admin{% endblock %}
 
@@ -15,27 +16,4 @@
   </h1>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
-html
-{% load i18n static %}
-{% extends "admin/base.html" %}
-
-{# why: ensure tab title shows your brand #}
-{% block title %}Squire Enterprises Admin{% endblock %}
-
-{# why: add your CSS on top of Django admin styles #}
-{% block extrastyle %}
-  {{ block.super }}
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
-  <link rel="stylesheet" href="{% static 'css/admin_brand.css' %}">
-{% endblock %}
-
-{# why: replace the default "Django administration" header #}
-{% block branding %}
-  <h1 id="site-name" class="se-brand">
-    <a href="{% url 'admin:index' %}">Squire Enterprises Admin</a>
-  </h1>
-{% endblock %}
-
-{# optional: remove global nav items if you want a cleaner header #}
 {% block nav-global %}{% endblock %}
