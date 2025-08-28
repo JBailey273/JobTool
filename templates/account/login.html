@@ -1,46 +1,37 @@
 {% load static %}
-<link rel="stylesheet" href="/static/css/app.css">
-<style>
-.login-wrap{ min-height:100dvh; display:grid; place-items:center; padding:1rem; }
-.login-card{ width:min(420px, 100%); }
-.brand-center{ text-align:center; margin-bottom:.75rem; font-weight:800; }
-.errorlist{ list-style:none; margin:.25rem 0; padding:0; color:var(--danger); }
-</style>
-<script>
-(function(){ const s=localStorage.getItem('jt-theme'); if(s) document.documentElement.setAttribute('data-theme', s); })();
-</script>
-</head>
-<body>
-<div class="login-wrap">
-<section class="card login-card">
-<h1 class="brand-center">Squire Enterprises Job Tracker</h1>
-{% if form.non_field_errors %}
-<ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
-{% endif %}
-<form class="form" method="post" action="">
-{% csrf_token %}
-<p>
-<label for="id_username">Username</label>
-<input type="text" name="username" autofocus required id="id_username" value="{{ form.username.value|default:'' }}">
-{% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-</p>
-<p>
-<label for="id_password">Password</label>
-<input type="password" name="password" required id="id_password">
-{% if form.password.errors %}<ul class="errorlist">{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-</p>
-<p>
-<label class="row center" style="gap:.5rem;">
-<input type="checkbox" name="remember" value="1"> Remember me
-</label>
-</p>
-{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
-<div class="row" style="justify-content:space-between; align-items:center;">
-<button class="btn" type="submit">Sign in</button>
-<a class="btn btn-ghost" href="/admin/">Admin Login</a>
-</div>
-</form>
-</section>
-</div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Login — Squire Enterprises Job Tracker{% endblock %}
+
+{% block content %}
+  <section class="auth-wrap">
+    <div class="auth-card">
+      <h1 class="auth-title">Sign in</h1>
+      {% if form.non_field_errors %}
+        <div class="alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+        <div class="form-row">
+          <label for="id_username">Username</label>
+          <input id="id_username" type="text" name="username" required autocomplete="username" value="{{ form.username.value|default:'' }}">
+          {{ form.username.errors }}
+        </div>
+
+        <div class="form-row">
+          <label for="id_password">Password</label>
+          <input id="id_password" type="password" name="password" required autocomplete="current-password">
+          {{ form.password.errors }}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Sign in</button>
+        </div>
+      </form>
+
+      <p class="auth-note">You’re accessing the Squire Enterprises Job Tracker.</p>
+    </div>
+  </section>
+{% endblock %}
