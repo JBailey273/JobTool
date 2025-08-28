@@ -1,7 +1,7 @@
 # Render Blueprint — Starter plan (Python/Django ASGI)
 # Replace your repo-root render.yaml with this file.
 
-Databases:
+databases:
   - name: jobtool-db
     plan: free
     databaseName: jobtool
@@ -53,4 +53,3 @@ services:
         value: jobs.squire.enterprises,${RENDER_EXTERNAL_HOSTNAME}
       - key: CSRF_TRUSTED_ORIGINS
         value: https://jobs.squire.enterprises,https://${RENDER_EXTERNAL_HOSTNAME}
-
