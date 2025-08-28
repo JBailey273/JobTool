@@ -2,8 +2,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
+    # Fix: depend on the last migration you actually have (0002_drop_customer_and_adjust)
     dependencies = [
-        ("core", "0003_drop_legacy_customer_columns"),
+        ("core", "0002_drop_customer_and_adjust"),
     ]
 
     operations = [
