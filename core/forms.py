@@ -22,6 +22,12 @@ class ProjectChoiceField(forms.ModelChoiceField):
         return f"{obj.client.name} — {obj.name}"
 
 
+class ProjectPickerForm(forms.Form):
+    """Simple form used on the dashboard to select a project."""
+
+    project = ProjectChoiceField(queryset=Project.objects.filter(active=True))
+
+
 class WorkEntryForm(forms.ModelForm):
     project = ProjectChoiceField(queryset=Project.objects.filter(active=True))
 
