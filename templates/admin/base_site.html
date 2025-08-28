@@ -1,20 +1,8 @@
 {% extends "admin/base.html" %}
-{% load static i18n %}
-
-{% block title %}Squire Enterprises Admin{% endblock %}
-
-{% block extrastyle %}
-  {{ block.super }}
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
-  <link rel="stylesheet" href="{% static 'css/admin_brand.css' %}">
-{% endblock %}
 
 {% block branding %}
-  <h1 id="site-name" class="se-brand">
-    <a href="{% url 'admin:index' %}">
-      <img src="{% static 'img/squire-logo.png' %}" alt="Squire Enterprises" class="se-header-logo"/>
-      Squire Enterprises Admin
-    </a>
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Squire Enterprises Admin</a>
   </h1>
 {% endblock %}
 
